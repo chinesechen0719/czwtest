@@ -1,0 +1,449 @@
+--IVS---------产品---------------------------------
+SELECT
+	t2.agent_long_code AS '营销员编号',
+	t2.sub_company_id AS '分公司编号',
+	t2.name AS '营销员姓名',
+	t1.name AS '被保人',
+	t1.product_name AS '产品',
+	t1.Q7 AS '保费',
+	t1.mobile AS '联系方式',
+	t1.age AS '年龄',
+	CASE
+WHEN t1.sex = '1' THEN
+	'男'
+ELSE
+	'女'
+END AS '性别',
+ t1.Q5 AS '保额',
+ t1.insert_time AS '试算日期',
+ t1.client_name AS '单位',
+ t1.product_type AS '试算类型'
+FROM
+	tookeen_activity t1
+LEFT JOIN tookeen_agent t2 ON t1.agent_id = t2.id
+WHERE
+	t1.is_ivs IS NOT NULL
+AND t1.is_ivs = 1
+AND t1.activity_source = '产品';
+
+--IVS---------活动--------------------------------------
+SELECT
+	t2.agent_long_code AS '营销员编号',
+	t2.sub_company_id AS '分公司编号',
+	t2.name AS '营销员姓名',
+	t1.name AS '被保人',
+	t1.type AS '活动名称',
+	t1.mobile AS '联系方式',
+	t1.insert_time AS '参与日期',
+	t1.client_name AS '单位',
+	t1.department AS '部门',
+	t1.type_name AS '活动类型'
+FROM
+	tookeen_activity t1
+LEFT JOIN tookeen_agent t2 ON t1.agent_id = t2.id
+WHERE
+	t1.is_ivs IS NOT NULL
+AND t1.is_ivs = 1
+AND t1.activity_source = '活动';
+
+--健康友行------------------------------------------
+SELECT
+	t2.agent_long_code AS '营销员编号',
+	t2.sub_company_id AS '分公司编号',
+	t2.name AS '营销员姓名',
+	t1.name AS '姓名',
+	t1.mobile AS '联系电话',
+	t1.type AS '参与活动',
+	t1.insert_time AS '参与日期'
+FROM
+	tookeen_activity t1
+LEFT JOIN tookeen_agent t2 ON t1.agent_id = t2.id
+WHERE
+	t1.mobile IS NOT NULL
+AND t1.type = '健康友行';
+
+--开门红--广东团险专区--------------------------------------------
+SELECT
+	t2.agent_long_code AS '营销员编号',
+	t2.sub_company_id AS '分公司编号',
+	t2.name AS '营销员姓名',
+	t1.name AS '姓名',
+	t1.mobile AS '联系方式',
+	t1.age AS '年龄',
+	t1.activity_name AS '参与活动',
+	t1.product_name AS '产品名称',
+	t1.Q4 AS '地区',
+	t1.Q5 AS '保额',
+	t1.Q6 AS '缴费年限',
+	t1.Q7 AS '首年保费',
+	t1.insert_time AS '试算日期'
+FROM
+	tookeen_activity t1
+LEFT JOIN tookeen_agent t2 ON t1.agent_id = t2.id
+WHERE
+	t1.activity_source = '开门红'
+AND t1.product_type = 'gd-kang'
+ORDER BY
+	t1.insert_time DESC;
+	
+--开门红--新品推荐------------------------------------------------------
+SELECT
+	t2.agent_long_code AS '营销员编号',
+	t2.sub_company_id AS '分公司编号',
+	t2.name AS '营销员姓名',
+	t1.name AS '姓名',
+	t1.sex AS '性别',
+	t1.mobile AS '联系方式',
+	t1.age AS '年龄',
+	t1.activity_name AS '参与活动',
+	t1.product_name AS '产品名称',
+	t1.Q5 AS '保额',
+	t1.Q6 AS '缴费年限',
+	t1.Q7 AS '首年保费',
+	t1.insert_time AS '试算日期'
+FROM
+	tookeen_activity t1
+LEFT JOIN tookeen_agent t2 ON t1.agent_id = t2.id
+WHERE
+	t1.activity_source = '当月热荐'
+AND t1.product_type = 'new'
+ORDER BY
+	t1.insert_time DESC;
+	
+--开门红--精品推荐----------------------------------------------------------------------
+SELECT
+	t2.agent_long_code AS '营销员编号',
+	t2.sub_company_id AS '分公司编号',
+	t2.name AS '营销员姓名',
+	t1.name AS '姓名',
+	t1.sex AS '性别',
+	t1.mobile AS '联系方式',
+	t1.age AS '年龄',
+	t1.activity_name AS '参与活动',
+	t1.product_name AS '产品名称',
+	t1.Q5 AS '保额',
+	t1.Q6 AS '缴费年限',
+	t1.Q7 AS '首年保费',
+	t1.insert_time AS '试算日期'
+FROM
+	tookeen_activity t1
+LEFT JOIN tookeen_agent t2 ON t1.agent_id = t2.id
+WHERE
+	t1.activity_source = '当月热荐'
+AND t1.product_type = 'single'
+ORDER BY
+	t1.insert_time DESC;
+	
+--开门红--组合推荐--全佑一家组合（简易版）-------------------------------------------------------------------------
+SELECT
+	t1.name AS '家庭',
+	t1.[relative] AS '关系',
+	t1.name AS '姓名',
+	CASE
+WHEN t1.sex = '1' THEN
+	'男'
+ELSE
+	'女'
+END AS '性别',
+ t1.mobile AS '联系方式',
+ t1.age AS '年龄',
+ t1.product_name AS '产品名称',
+ t1.Q6 AS '缴费年限',
+ t1.Q7 AS '首年保费',
+ t1.Q1 AS '家庭编号',
+ t1.insert_time AS '试算日期'
+FROM
+	tookeen_activity t1
+LEFT JOIN tookeen_agent t2 ON t1.agent_id = t2.id
+WHERE
+	t1.Q1 IN (
+		SELECT DISTINCT
+			Q1
+		FROM
+			tookeen_activity
+		GROUP BY
+			Q1,
+			customer_source,
+			activity_source,
+			product_type,
+			insert_time
+		HAVING
+			customer_source = '1'
+		AND activity_source = '当月热荐'
+		AND product_type = 'zuhe'
+	)
+ORDER BY
+	t1.insert_time DESC;
+
+--开门红--组合推荐--全佑一家组合（完整版）-------------------------------------------------------------------------
+SELECT
+	t1.name AS '家庭',
+	t1.[relative] AS '关系',
+	t1.name AS '姓名',
+	CASE
+WHEN t1.sex = '1' THEN
+	'男'
+ELSE
+	'女'
+END AS '性别',
+ t1.mobile AS '联系方式',
+ t1.age AS '年龄',
+ t1.Q2 AS '家庭保障',
+ t1.Q3 AS '已有保障',
+ t1.Q4 AS '缺口绝对值',
+ t1.product_name AS '产品名称',
+ t1.Q6 AS '缴费年限',
+ t1.Q7 AS '首年保费',
+ t1.Q1 AS '家庭编号',
+ t1.insert_time AS '试算日期'
+FROM
+	tookeen_activity t1
+LEFT JOIN tookeen_agent t2 ON t1.agent_id = t2.id
+WHERE
+	t1.Q1 IN (
+		SELECT DISTINCT
+			Q1
+		FROM
+			tookeen_activity
+		GROUP BY
+			Q1,
+			customer_source,
+			activity_source,
+			product_type,
+			insert_time
+		HAVING
+			customer_source = '2'
+		AND activity_source = '当月热荐'
+		AND product_type = 'zuhe'
+	)
+ORDER BY
+	t1.insert_time DESC;
+
+
+--开门红--稳赢一家组合------------------------------------------------
+SELECT
+	t1.name AS '家庭',
+	t1.[relative] AS '关系',
+	t1.name AS '姓名',
+	CASE
+WHEN t1.sex = '1' THEN
+	'男'
+ELSE
+	'女'
+END AS '性别',
+ t1.mobile AS '联系方式',
+ t1.age AS '年龄',
+ t1.Q2 AS '家庭保障',
+ t1.Q3 AS '已有保障',
+ t1.Q4 AS '缺口绝对值',
+ t1.product_name AS '产品名称',
+ t1.Q6 AS '缴费年限',
+ t1.Q7 AS '首年保费',
+ t1.Q1 AS '家庭编号',
+ t1.insert_time AS '试算日期'
+FROM
+	tookeen_activity t1
+LEFT JOIN tookeen_agent t2 ON t1.agent_id = t2.id
+WHERE
+	t1.Q1 IN (
+		SELECT DISTINCT
+			Q1
+		FROM
+			tookeen_activity
+		GROUP BY
+			Q1,
+			customer_source,
+			activity_source,
+			product_type,
+			insert_time
+		HAVING
+			customer_source = '3'
+		AND activity_source = '当月热荐'
+		AND product_type = 'zuhe'
+	)
+ORDER BY
+	t1.insert_time DESC;
+
+--开门红--传世一家组合------------------------------------------------
+SELECT
+	t1.name AS '家庭',
+	t1.[relative] AS '关系',
+	t1.name AS '姓名',
+	CASE
+WHEN t1.sex = '1' THEN
+	'男'
+ELSE
+	'女'
+END AS '性别',
+ t1.mobile AS '联系方式',
+ t1.age AS '年龄',
+ t1.Q2 AS '家庭保障',
+ t1.Q3 AS '已有保障',
+ t1.Q4 AS '缺口绝对值',
+ t1.product_name AS '产品名称',
+ t1.Q6 AS '缴费年限',
+ t1.Q7 AS '首年保费',
+ t1.Q1 AS '家庭编号',
+ t1.insert_time AS '试算日期'
+FROM
+	tookeen_activity t1
+LEFT JOIN tookeen_agent t2 ON t1.agent_id = t2.id
+WHERE
+	t1.Q1 IN (
+		SELECT DISTINCT
+			Q1
+		FROM
+			tookeen_activity
+		GROUP BY
+			Q1,
+			customer_source,
+			activity_source,
+			product_type,
+			insert_time
+		HAVING
+			customer_source = '4'
+		AND activity_source = '当月热荐'
+		AND product_type = 'zuhe'
+	)
+ORDER BY
+	t1.insert_time DESC;
+	
+
+--职涯规划--收入试算-------------------------------
+SELECT
+	t2.agent_long_code AS '营销员编号',
+	t2.sub_company_id AS '分公司编号',
+	t2.name AS '营销员姓名',
+	t1.name AS '姓名',
+	t1.read_flag AS '阅读回执',
+	t1.result AS '首年收入',
+	t1.mobile AS '手机号码',
+	t1.birthday AS '生日',
+	CASE
+WHEN t1.sex = '1' THEN
+	'男'
+ELSE
+	'女'
+END AS '性别',
+ t1.education AS '学历',
+ t1.insert_time AS '试算日期'
+FROM
+	tookeen_income t1
+LEFT JOIN tookeen_agent t2 ON t1.agent_id = t2.id
+ORDER BY
+	t1.insert_time DESC;
+
+
+--职涯规划--焕价值友事业-------------------------------
+SELECT
+	t2.agent_long_code AS '营销员编号',
+	t2.sub_company_id AS '分公司编号',
+	t2.name AS '营销员姓名',
+	t1.name AS '姓名',
+	t1.type AS '参与活动',
+	t1.mobile AS '手机号码',
+	t1.insert_time AS '参与日期'
+FROM
+	tookeen_activity t1
+LEFT JOIN tookeen_agent t2 ON t1.agent_id = t2.id
+WHERE
+	t1.type_name = '优增季'
+AND t1.is_ivs IS NULL
+ORDER BY
+	t1.insert_time DESC;
+	
+
+--职涯规划--核心价值-------------------------------
+SELECT
+	t2.agent_long_code AS '营销员编号',
+	t2.sub_company_id AS '分公司编号',
+	t2.name AS '营销员姓名',
+	t1.name AS '姓名',
+	t1.type_name AS '参与活动',
+	t1.mobile AS '手机号码',
+	t1.insert_time AS '参与日期'
+FROM
+	tookeen_activity t1
+LEFT JOIN tookeen_agent t2 ON t1.agent_id = t2.id
+WHERE
+	t1.type_name = '核心价值'
+AND t1.is_ivs IS NULL
+ORDER BY
+	t1.insert_time DESC;
+	
+	
+--活动---------------（通用）变量type_name-----------------------
+SELECT
+	t2.agent_long_code AS '营销员编号',
+	t2.sub_company_id AS '分公司编号',
+	t2.name AS '营销员姓名',
+	t1.name AS '姓名',
+	t1.type_name AS '参与活动',
+	t1.mobile AS '手机号码',
+	t1.insert_time AS '参与日期'
+FROM
+	tookeen_activity t1
+LEFT JOIN tookeen_agent t2 ON t1.agent_id = t2.id
+WHERE
+	t1.type_name = '中医体质测评问卷'
+AND t1.is_ivs IS NULL
+ORDER BY
+	t1.insert_time DESC;
+
+--精选客户----------------------------------------------
+SELECT
+	t2.agent_long_code AS '营销员编号',
+	t2.sub_company_id AS '分公司编号',
+	t2.name AS '营销员姓名',
+	t1.name AS '姓名',
+	CASE
+WHEN t1.join_flag = 'true' THEN
+	'是'
+ELSE
+	'否'
+END AS '是否参与',
+ CASE
+WHEN t1.read_flag = 'true' THEN
+	'是'
+ELSE
+	'否'
+END AS '客户回执',
+ t1.phone AS '联系电话',
+ t1.insured_name AS '被保人',
+ CASE
+WHEN t1.sex = 'M' THEN
+	'男'
+WHEN t1.sex = 'F' THEN
+	'女'
+ELSE
+	t1.sex
+END AS '性别',
+ t1.age AS '年龄',
+ t1.campaign_name AS '活动名称',
+ t1.join_date AS '参与日期'
+FROM
+	tookeen_choiceness_customer t1
+LEFT JOIN tookeen_agent t2 ON t1.agent_id = t2.id
+ORDER BY
+	t1.insert_time DESC;
+
+	
+--市场调查---------------------------------------------------------
+SELECT
+	t2.agent_long_code AS '营销员编号',
+	t2.sub_company_id AS '分公司编号',
+	t2.name AS '营销员姓名',
+	t1.name AS '姓名',
+	t3.name AS '参与活动',
+	t4.name AS '参与问卷',
+	t1.mobile AS '联系电话',
+	t1.insert_time AS '参与日期'
+FROM
+	tookeen_survey_user_info t1
+LEFT JOIN tookeen_agent t2 ON t1.agent_id = t2.id
+LEFT JOIN tookeen_survey_info t3 ON t1.survey_info_id = t3.id
+LEFT JOIN tookeen_survey_object t4 ON t3.survey_object_id = t4.id
+WHERE
+	t1.type IS NOT NULL
+ORDER BY
+	t1.insert_time DESC;
